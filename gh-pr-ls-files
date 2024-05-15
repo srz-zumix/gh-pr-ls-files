@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+
+msg() {
+    echo >&2 -e "${1-}"
+}
+
+die() {
+    local msg=$1
+    local code=${2-1} # default exit status 1
+    msg "$msg"
+    exit "$code"
+}
+
+function usage() {
+    die "gh pr-ls-files <pr number|url|branch>
+
+list files in the pull request
+
+    -a, --added           show added files in the output
+    -d, --deleted         show deleted files in the output
+    -m, --modified        show modified files in the output
+" "$1"
+}
+
+parse_params() {
+    ADDED="${PR_LS_FILES_ADDED:-false}"
+    DELETED="${PR_LS_FILES_DELETED:-false}"
+    MODIFIED="${PR_LS_FILES_MODIFIED:-false}"
+    PULL_REQUEST=
+    while :; do
+        case "${1-}" in
+        -a | --added)
+            ADDED=true
+            ;;
+        -d | --deleted)
+            DELETED=true
+            ;;
+        -m | --modified)
+            MODIFIED=true
+            ;;
+        -h | --help)
+            usage 0
+            ;;
+        --*| -* )
+            echo "${1:-} is invalid option."
+            usage 1
+            ;;
+        *)
+            if [ -z "${1:-}" ]; then
+                break
+            fi
+            if [ -n "${PULL_REQUEST}" ]; then
+                echo "${1:-} is invalid position option."
+                usage 1
+            fi
+            PULL_REQUEST="${1-}"
+            ;;
+        esac
+        shift
+    done
+    return 0
+}
+
+parse_params "$@"
+
+DIFFS=$(gh pr diff "${PULL_REQUEST}" | grep -E '^(---|\+\+\+) ')
+OURS=$(echo "$DIFFS" | grep -E '^---' | grep -v '/dev/null' | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+THEIRS=$(echo "$DIFFS" | grep -E '^\+\+\+' | grep -v '/dev/null' | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+ALL_FILES=$((echo "${OURS}"; echo "${THEIRS}") | sort | uniq)
+
+if [ "${ADDED}" = false ] && [ "${DELETED}" = false ] && [ "${MODIFIED}" = false ]; then
+    echo "${ALL_FILES}"
+    exit 0
+fi
+
+if [ "${ADDED}" = true ] && [ "${DELETED}" = true ] && [ "${MODIFIED}" = true ]; then
+    echo "${ALL_FILES}"
+    exit 0
+fi
+
+LS_FILES=()
+if [ "${ADDED}" = true ]; then
+    ADD_FILES=$((echo "${ALL_FILES}"; echo "${OURS}") | sort | uniq -u)
+    LS_FILES+=(${ADD_FILES})
+fi
+
+if [ "${DELETED}" = true ]; then
+    DEL_FILES=$((echo "${ALL_FILES}"; echo "${THEIRS}") | sort | uniq -u)
+    LS_FILES+=(${DEL_FILES})
+fi
+
+if [ "${MODIFIED}" = true ]; then
+    MOD_FILES=$((echo "${OURS}"; echo "${THEIRS}") | sort | uniq -d)
+    LS_FILES+=(${MOD_FILES})
+fi
+
+IFS=$'\n'
+echo "${LS_FILES[*]}" | sort | uniq
