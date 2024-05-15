@@ -32,7 +32,6 @@ outputs:
   files:
     description: 'files in the pull request'
     value: ${{ steps.ls-files.outputs.files }}
-    type: string
 
 runs:
   using: composite

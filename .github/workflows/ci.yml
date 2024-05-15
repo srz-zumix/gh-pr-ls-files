@@ -12,7 +12,6 @@ permissions:
 jobs:
 
   test-action:
-    name: GitHub Actions Test
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +39,6 @@ jobs:
           diff output.txt pr-name-only.txt
 
   test-type:
-    name: GitHub Actions Test
     runs-on: ubuntu-latest
 
     steps:
