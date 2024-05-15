@@ -32,7 +32,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr diff --name-only ${{ github.event.number }} | sort |  pr-name-only.txt
+          gh pr diff --name-only ${{ github.event.number }} | sort | tee pr-name-only.txt
           cat << 'EOS' | tee output.txt
           ${{ steps.test-action.outputs.files }}
           EOS
