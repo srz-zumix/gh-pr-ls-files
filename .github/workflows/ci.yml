@@ -62,7 +62,7 @@ jobs:
         with:
           pull_request: "1"
           added: false
-          modifed: false
+          modified: false
 
       - name: Test
         run: |
