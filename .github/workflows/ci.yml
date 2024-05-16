@@ -19,6 +19,7 @@ jobs:
           - 2
           - 3
           - 4
+          - 6
           - ${{ github.event.number }}
           - ${{ github.event.pull_request.html_url}}
     steps:

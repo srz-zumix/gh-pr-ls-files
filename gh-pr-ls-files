@@ -65,14 +65,7 @@ parse_params() {
 
 parse_params "$@"
 
-DIFF=$(gh pr diff "${PULL_REQUEST}")
-DIFF_LINES=$(echo "${DIFF}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
-OURS=$((echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-THEIRS=$((echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-
-NEW_FILES=$((echo "${DIFF}" | grep -B 1 -E 'new file' | grep 'diff' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
-ALL_FILES=$((echo "${OURS}"; echo "${THEIRS}"; echo "${NEW_FILES}") | awk 'NF' |  sort | uniq)
-
+ALL_FILES=$(gh pr diff "${PULL_REQUEST}" --name-only)
 if [ -z "${ALL_FILES}" ]; then
     die "No diff found for the pull request ${PULL_REQUEST}" 0
 fi
@@ -87,7 +80,15 @@ if [ "${ADDED}" = true ] && [ "${DELETED}" = true ] && [ "${MODIFIED}" = true ];
     exit 0
 fi
 
-LS_FILES=()
+DIFF=$(gh pr diff "${PULL_REQUEST}")
+DIFF_LINES=$(echo "${DIFF}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
+OURS=$((echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+THEIRS=$((echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+
+NEW_FILES=$((echo "${DIFF}" | grep -B 1 -E 'new file' | grep -v 'new file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
+DELETED_FILES=$((echo "${DIFF}" | grep -B 1 -E 'deleted file' | grep -v 'deleted file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
+
+LS_FILES=(${ALL_FILES})
 if [ "${ADDED}" = true ]; then
     ADD_FILES=$((echo "${ALL_FILES}"; echo "${OURS}") | sort | uniq -u)
     LS_FILES+=(${ADD_FILES})
@@ -104,4 +105,4 @@ if [ "${MODIFIED}" = true ]; then
 fi
 
 IFS=$'\n'
-echo "${LS_FILES[*]}" | awk 'NF' | sort | uniq
+echo "${LS_FILES[*]}" | awk 'NF' | sort | uniq -u
