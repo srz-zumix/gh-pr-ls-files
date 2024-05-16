@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euox pipefail
 
 
 msg() {
@@ -65,9 +65,12 @@ parse_params() {
 
 parse_params "$@"
 
-DIFFS=$(gh pr diff "${PULL_REQUEST}" | grep -E '^(---|\+\+\+) ')
-OURS=$(echo "$DIFFS" | grep -E '^---' | grep -v '/dev/null' | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-THEIRS=$(echo "$DIFFS" | grep -E '^\+\+\+' | grep -v '/dev/null' | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+DIFFS=$(gh pr diff "${PULL_REQUEST}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
+if [ -z "${DIFFS}" ]; then
+    die "No diff found for the pull request" 0
+fi
+OURS=$(echo "${DIFFS}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]] | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+THEIRS=$(echo "${DIFFS}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]] | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
 ALL_FILES=$((echo "${OURS}"; echo "${THEIRS}") | sort | uniq)
 
 if [ "${ADDED}" = false ] && [ "${DELETED}" = false ] && [ "${MODIFIED}" = false ]; then
