@@ -2,8 +2,6 @@
 
 This extension or action gets a list of added/deleted/modfied files in a pull request without checkout.
 
-test
-
 ## GitHub CLI Extension
 
 ### Getting Started
