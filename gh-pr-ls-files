@@ -71,7 +71,7 @@ if [ -z "${DIFFS}" ]; then
 fi
 OURS=$((echo "${DIFFS}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
 THEIRS=$((echo "${DIFFS}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-ALL_FILES=$((echo "${OURS}"; echo "${THEIRS}") | sort | uniq)
+ALL_FILES=$((echo "${OURS}"; echo "${THEIRS}") | awk 'NF' | sort | uniq)
 
 if [ "${ADDED}" = false ] && [ "${DELETED}" = false ] && [ "${MODIFIED}" = false ]; then
     echo "${ALL_FILES}"
