@@ -65,13 +65,17 @@ parse_params() {
 
 parse_params "$@"
 
-DIFFS=$(gh pr diff "${PULL_REQUEST}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
-if [ -z "${DIFFS}" ]; then
-    die "No diff found for the pull request" 0
+DIFF=$(gh pr diff "${PULL_REQUEST}")
+DIFF_LINES=$(echo "${DIFF}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
+OURS=$((echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+THEIRS=$((echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+
+NEW_FILES=$((echo "${DIFF}" | grep -B 1 -E 'new file' | grep 'diff' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
+ALL_FILES=$((echo "${OURS}"; echo "${THEIRS}"; echo "${NEW_FILES}") | awk 'NF' |  sort | uniq)
+
+if [ -z "${ALL_FILES}" ]; then
+    die "No diff found for the pull request ${PULL_REQUEST}" 0
 fi
-OURS=$((echo "${DIFFS}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-THEIRS=$((echo "${DIFFS}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-ALL_FILES=$((echo "${OURS}"; echo "${THEIRS}") | awk 'NF' |  sort | uniq)
 
 if [ "${ADDED}" = false ] && [ "${DELETED}" = false ] && [ "${MODIFIED}" = false ]; then
     echo "${ALL_FILES}"

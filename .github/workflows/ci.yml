@@ -19,7 +19,8 @@ jobs:
           - 2
           - 3
           - 4
-          - ${{ github.event.number}}
+          - ${{ github.event.number }}
+          - ${{ github.event.pull_request.html_url}}
     steps:
       - name: Checkout
         id: checkout
