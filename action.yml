@@ -54,6 +54,7 @@ runs:
         DELIMITER="<$(openssl rand -hex 8)>"
         {
           echo "files<<${DELIMITER}"
+          echo "${LS_FILES}"
           echo "${DELIMITER}"
         } >> "${GITHUB_OUTPUT}"
       fi
