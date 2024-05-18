@@ -156,7 +156,7 @@ jobs:
         uses: ./
         with:
           pull_request: 5
-          filter: '.*(\\.yml||\\.sh)$'
+          filter: '.*(\.yml||\.sh)$'
           delimiter: ','
 
       - name: Print Output
