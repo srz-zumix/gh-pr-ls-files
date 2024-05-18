@@ -3,6 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" &>/dev/null && pwd -P)
 
+echo "${INPUTS_FILTER}"
+
 LS_FILES=$("${SCRIPT_DIR}/gh-pr-ls-files" "$@" | grep -E "${INPUTS_FILTER:-.*}" || [[ $? == 1 ]])
 
 if [ -z "${LS_FILES}" ]; then
