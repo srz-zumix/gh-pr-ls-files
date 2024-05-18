@@ -81,12 +81,13 @@ fi
 
 DIFF=$(gh pr diff "${PULL_REQUEST}")
 DIFF_LINES=$(echo "${DIFF}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
-OURS=$((echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+OURS_CHANGED_FILES=$((echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+DELETED_FILES=$((echo "${DIFF}" | grep -B 1 -E 'deleted file' | grep -v 'deleted file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
+OURS=$((echo "${OURS_CHANGED_FILES}"; echo "${DELETED_FILES}") | sort | uniq)
 
 MOD_FILES=$((echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
 NEW_FILES=$((echo "${DIFF}" | grep -B 1 -E 'new file' | grep -v 'new file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
-DELETED_FILES=$((echo "${DIFF}" | grep -B 1 -E 'deleted file' | grep -v 'deleted file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
-THEIRS=$((echo "${MOD_FILES}"; echo "${NEW_FILES}"; echo "${DELETED_FILES}") | sort | uniq)
+THEIRS=$((echo "${MOD_FILES}"; echo "${NEW_FILES}") | sort | uniq)
 
 
 LS_FILES=(${ALL_FILES})
