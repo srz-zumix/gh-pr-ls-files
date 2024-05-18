@@ -19,7 +19,7 @@ jobs:
           path: "."
           pattern: |
             *.sh
-            gh-act
+            gh-pr-ls-files
           exclude: "./.git/*"
 
   actionlint:

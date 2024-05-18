@@ -81,28 +81,31 @@ fi
 
 DIFF=$(gh pr diff "${PULL_REQUEST}")
 DIFF_LINES=$(echo "${DIFF}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
-OURS_CHANGED_FILES=$((echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-DELETED_FILES=$((echo "${DIFF}" | grep -B 1 -E 'deleted file' | grep -v 'deleted file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
-OURS=$((echo "${OURS_CHANGED_FILES}"; echo "${DELETED_FILES}") | sort | uniq)
+OURS_CHANGED_FILES=$( (echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+DELETED_FILES=$( (echo "${DIFF}" | grep -B 1 -E 'deleted file' | grep -v 'deleted file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
+OURS=$( (echo "${OURS_CHANGED_FILES}"; echo "${DELETED_FILES}") | sort | uniq)
 
-MOD_FILES=$((echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-NEW_FILES=$((echo "${DIFF}" | grep -B 1 -E 'new file' | grep -v 'new file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
+MOD_FILES=$( (echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
+NEW_FILES=$( (echo "${DIFF}" | grep -B 1 -E 'new file' | grep -v 'new file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
 THEIRS=$((echo "${MOD_FILES}"; echo "${NEW_FILES}") | sort | uniq)
 
-
+# shellcheck disable=SC2206
 LS_FILES=(${ALL_FILES})
 if [ "${ADDED}" = true ]; then
-    ADD_FILES=$((echo "${ALL_FILES}"; echo "${OURS}") | sort | uniq -u)
+    ADD_FILES=$( (echo "${ALL_FILES}"; echo "${OURS}") | sort | uniq -u)
+    # shellcheck disable=SC2206
+    # shellcheck disable=SC2206
     LS_FILES+=(${ADD_FILES})
 fi
 
 if [ "${DELETED}" = true ]; then
-    DEL_FILES=$((echo "${ALL_FILES}"; echo "${THEIRS}") | sort | uniq -u)
+    DEL_FILES=$( (echo "${ALL_FILES}"; echo "${THEIRS}") | sort | uniq -u)
+    # shellcheck disable=SC2206
     LS_FILES+=(${DEL_FILES})
 fi
 
 if [ "${MODIFIED}" = true ]; then
-    MOD_FILES=$((echo "${OURS}"; echo "${THEIRS}") | sort | uniq -d)
+    MOD_FILES=$( (echo "${OURS}"; echo "${THEIRS}") | sort | uniq -d)
     LS_FILES+=(${MOD_FILES})
 fi
 

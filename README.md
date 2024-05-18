@@ -52,6 +52,16 @@ show deleted files in the output. Default: `true`
 
 show modified files in the output. Default: `true`
 
+#### `filter`
+
+show files with the specified grep filter in the output.
+
+e.g. `".*(\.ino|\.cpp|\.c|\.h|\.hpp|\.hh)$"`
+
+#### `delimiter`
+
+delimiter for the output.
+
 #### `github_token`
 
 GitHub TOKEN. Default: `github.token`
