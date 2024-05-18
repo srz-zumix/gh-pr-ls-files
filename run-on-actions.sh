@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" &>/dev/null && pwd -P)
 
-LS_FILES=$(${SCRIPT_DIR}/gh-pr-ls-files "$@")
+LS_FILES=$("${SCRIPT_DIR}/gh-pr-ls-files" "$@")
 
 if [ -z "${LS_FILES}" ]; then
     echo "files=" | tee -a "${GITHUB_OUTPUT:-/dev/null}"
