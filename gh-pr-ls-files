@@ -89,6 +89,7 @@ MOD_FILES=$((echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [
 NEW_FILES=$((echo "${DIFF}" | grep -B 1 -E 'new file' | grep -v 'new file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
 THEIRS=$((echo "${MOD_FILES}"; echo "${NEW_FILES}") | sort | uniq)
 
+# shellcheck disable=SC2206
 LS_FILES=(${ALL_FILES})
 if [ "${ADDED}" = true ]; then
     ADD_FILES=$((echo "${ALL_FILES}"; echo "${OURS}") | sort | uniq -u)

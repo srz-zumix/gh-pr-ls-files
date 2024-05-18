@@ -11,6 +11,7 @@ if [ -z "${LS_FILES}" ]; then
     exit 0
 fi
 
+# shellcheck disable=SC2206
 FILE_LIST=(${LS_FILES})
 FILE_COUNT=$(echo "${LS_FILES}" | wc -l | xargs -I{} echo {})
 echo "count=${FILE_COUNT}" | tee -a "${GITHUB_OUTPUT:-/dev/null}"
@@ -28,6 +29,7 @@ if [ "${INPUTS_DELIMITER:-' '}" == $'\n' ]; then
 fi
 
 IFS=${INPUTS_DELIMITER:-' '}
+# shellcheck disable=SC2116
 FILES=$(echo "${FILE_LIST[*]}")
 
 echo "files=${FILES}" | tee -a "${GITHUB_OUTPUT:-/dev/null}"
