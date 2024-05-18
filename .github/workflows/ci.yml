@@ -132,7 +132,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat << 'EOS' | tee expected.txt
+          cat << 'EOS' | awk 'NF' | tee expected.txt
           ${{ matrix.expected }}
           EOS
           cat << 'EOS' | tee output.txt
