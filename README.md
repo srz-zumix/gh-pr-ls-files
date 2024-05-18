@@ -52,6 +52,10 @@ show deleted files in the output. Default: `true`
 
 show modified files in the output. Default: `true`
 
+#### `filter`
+
+e.g. `".*(\\.ino|\\.cpp|\\.c|\\.h|\\.hpp|\\.hh)$"`
+
 #### `github_token`
 
 GitHub TOKEN. Default: `github.token`
