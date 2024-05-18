@@ -30,7 +30,7 @@ inputs:
   delimiter:
     description: 'delimiter for the output'
     required: false
-    default: $'\n'
+    default: ""
     type: string
   github_token:
     description: 'GitHub TOKEN'

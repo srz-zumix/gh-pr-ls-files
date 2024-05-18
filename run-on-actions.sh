@@ -16,7 +16,7 @@ FILE_LIST=(${LS_FILES})
 FILE_COUNT=$(echo "${LS_FILES}" | wc -l | xargs -I{} echo {})
 echo "count=${FILE_COUNT}" | tee -a "${GITHUB_OUTPUT:-/dev/null}"
 
-if [ "${INPUTS_DELIMITER:-' '}" == $'\n' ]; then
+if [ -z "${INPUTS_DELIMITER:-}" ]; then
     if [ "${FILE_COUNT}" -gt 1 ]; then
         DELIMITER="<$(openssl rand -hex 8)>"
         {
