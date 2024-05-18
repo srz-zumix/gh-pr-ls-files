@@ -69,7 +69,7 @@ jobs:
             added: false
             deleted: true
             modified: false
-            expected: |
+            expected: |-
               .markdown-lint.yml
           - name: Deleted Only (list added/modified)
             pr: 2
@@ -82,7 +82,7 @@ jobs:
             added: true
             deleted: false
             modified: false
-            expected: |
+            expected: |-
               test
           - name: Added Only (list deleted/modified)
             pr: 3
@@ -107,7 +107,7 @@ jobs:
             added: false
             deleted: true
             modified: false
-            expected: |
+            expected: |-
               test
     name: test-action - ${{ matrix.name }}
     steps:
