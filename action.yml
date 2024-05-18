@@ -32,6 +32,9 @@ outputs:
   files:
     description: 'files in the pull request'
     value: ${{ steps.ls-files.outputs.files }}
+  count:
+    description: 'count of files in the pull request'
+    value: ${{ steps.ls-files.outputs.count }}
 
 runs:
   using: composite
@@ -50,14 +53,18 @@ runs:
       export GH_ENTERPRISE_TOKEN="${INPUTS_GITHUB_TOKEN:-${GH_ENTERPRISE_TOKEN:-${{ github.token }}}}"
       export GH_TOKEN="${GH_ENTERPRISE_TOKEN}"
       LS_FILES=$(${{ github.action_path }}/gh-pr-ls-files ${{ inputs.pull_request }})
-      if [ -n "${LS_FILES}" ]; then
+      FILE_COUNT=$(echo "${LS_FILES}" | wc -l)
+      if [ "${FILE_COUNT}" -gt 1 ]; then
         DELIMITER="<$(openssl rand -hex 8)>"
         {
           echo "files<<${DELIMITER}"
           echo "${LS_FILES}"
           echo "${DELIMITER}"
         } >> "${GITHUB_OUTPUT}"
+      else
+        echo "files=${LS_FILES}" >> "${GITHUB_OUTPUT}"
       fi
+      echo "count=${FILE_COUNT}" >> "${GITHUB_OUTPUT}"
 
 branding:
   icon: 'file'

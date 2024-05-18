@@ -51,7 +51,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr diff --name-only ${{ github.event.number }} | sort | tee pr-name-only.txt
-          cat << 'EOS' | sort | tee output.txt
+          cat << 'EOS' | awk 'NF' | sort | tee output.txt
           ${{ steps.added.outputs.files }}
           ${{ steps.deleted.outputs.files }}
           ${{ steps.modified.outputs.files }}
@@ -61,6 +61,7 @@ jobs:
   test-type:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: Deleted Only (list deleted)
