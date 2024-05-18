@@ -38,7 +38,7 @@ list files in the pull request
 
 #### `pull_request`
 
-pull request number|url|branch. Default: `github.event.number`
+pull request number|url|branch. Default: `github.event.pull_request.html_url`
 
 #### `added`
 
@@ -61,3 +61,7 @@ GitHub TOKEN. Default: `github.token`
 ### `files`
 
 files in the pull request.
+
+### `count`
+
+count of files in the pull request.
