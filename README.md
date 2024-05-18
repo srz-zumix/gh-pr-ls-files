@@ -58,10 +58,10 @@ GitHub TOKEN. Default: `github.token`
 
 ### Outputs
 
-### `files`
+#### `files`
 
 files in the pull request.
 
-### `count`
+#### `count`
 
 count of files in the pull request.
