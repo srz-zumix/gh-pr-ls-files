@@ -5,7 +5,7 @@ author: srz-zumix
 inputs:
   pull_request:
     description: 'pull request number|url|branch'
-    default: ${{ github.event.number }}
+    default: ${{ github.event.pull_request.html_url }}
     type: string
   added:
     description: 'show added files in the output'
@@ -32,6 +32,9 @@ outputs:
   files:
     description: 'files in the pull request'
     value: ${{ steps.ls-files.outputs.files }}
+  count:
+    description: 'count of files in the pull request'
+    value: ${{ steps.ls-files.outputs.count }}
 
 runs:
   using: composite
@@ -49,12 +52,7 @@ runs:
       # shellcheck disable=SC2046
       export GH_ENTERPRISE_TOKEN="${INPUTS_GITHUB_TOKEN:-${GH_ENTERPRISE_TOKEN:-${{ github.token }}}}"
       export GH_TOKEN="${GH_ENTERPRISE_TOKEN}"
-      DELIMITER="<$(openssl rand -hex 8)>"
-      {
-        echo "files<<${DELIMITER}"
-        ${{ github.action_path }}/gh-pr-ls-files ${{ inputs.pull_request }}
-        echo "${DELIMITER}"
-      } >> "${GITHUB_OUTPUT}"
+      ${{ github.action_path }}/run-on-actions.sh ${{ inputs.pull_request }}
 
 branding:
   icon: 'file'

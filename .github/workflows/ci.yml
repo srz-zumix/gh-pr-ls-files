@@ -10,18 +10,36 @@ permissions:
   pull-requests: read
 
 jobs:
-
   test-action:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Test Local Action
-        id: test-action
+      - name: Test Local Action (A)
+        id: added
         uses: ./
+        with:
+          added: true
+          deleted: false
+          modified: false
+
+      - name: Test Local Action (D)
+        id: deleted
+        uses: ./
+        with:
+          added: false
+          deleted: true
+          modified: false
+
+      - name: Test Local Action (M)
+        id: modified
+        uses: ./
+        with:
+          added: false
+          deleted: false
+          modified: true
 
       - name: Print Output
         id: output
@@ -33,36 +51,93 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr diff --name-only ${{ github.event.number }} | sort | tee pr-name-only.txt
-          cat << 'EOS' | tee output.txt
-          ${{ steps.test-action.outputs.files }}
+          cat << 'EOS' | awk 'NF' | sort | tee output.txt
+          ${{ steps.added.outputs.files }}
+          ${{ steps.deleted.outputs.files }}
+          ${{ steps.modified.outputs.files }}
           EOS
           diff output.txt pr-name-only.txt
 
   test-type:
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Deleted Only (list deleted)
+            pr: 2
+            added: false
+            deleted: true
+            modified: false
+            expected: |-
+              .markdown-lint.yml
+          - name: Deleted Only (list added/modified)
+            pr: 2
+            added: true
+            deleted: false
+            modified: true
+            expected: ""
+          - name: Added Only (list added)
+            pr: 3
+            added: true
+            deleted: false
+            modified: false
+            expected: |-
+              test
+          - name: Added Only (list deleted/modified)
+            pr: 3
+            added: false
+            deleted: true
+            modified: true
+            expected: ""
+          - name: No Changes (list modified)
+            pr: 4
+            added: false
+            deleted: false
+            modified: true
+            expected: ""
+          - name: No Changes (list added/deleted)
+            pr: 4
+            added: true
+            deleted: true
+            modified: false
+            expected: ""
+          - name: Empty File Deleted Only (list deleted)
+            pr: 6
+            added: false
+            deleted: true
+            modified: false
+            expected: |-
+              test
+    name: test-action - ${{ matrix.name }}
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
 
       - name: Test Local Action
-        id: test-modified
+        id: test-action
         uses: ./
         with:
-          pull_request: "1"
-          added: false
-          deleted: false
+          pull_request: ${{ matrix.pr }}
+          added: ${{ matrix.added }}
+          deleted: ${{ matrix.deleted }}
+          modified: ${{ matrix.modified }}
 
-      - name: Test Local Action
-        id: test-deleted
-        uses: ./
-        with:
-          pull_request: "1"
-          added: false
-          modified: false
+      - name: Print Output
+        id: output
+        run: |
+          echo "${{ toJson(steps.test-action.outputs) }}"
 
       - name: Test
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          test "${{ steps.test-modified.outputs.files }}" = "README.md"
-          test -z "${{ steps.test-deleted.outputs.files }}"
+          cat << 'EOS' | tee expected.txt
+          ${{ matrix.expected }}
+          EOS
+          cat << 'EOS' | tee output.txt
+          ${{ steps.test-action.outputs.files }}
+          EOS
+          diff expected.txt output.txt
+
