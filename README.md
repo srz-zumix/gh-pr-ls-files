@@ -54,7 +54,13 @@ show modified files in the output. Default: `true`
 
 #### `filter`
 
-e.g. `".*(\\.ino|\\.cpp|\\.c|\\.h|\\.hpp|\\.hh)$"`
+show files with the specified grep filter in the output.
+
+e.g. `".*(\.ino|\.cpp|\.c|\.h|\.hpp|\.hh)$"`
+
+#### `delimiter`
+
+delimiter for the output.
 
 #### `github_token`
 
