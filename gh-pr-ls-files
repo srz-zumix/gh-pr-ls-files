@@ -93,11 +93,14 @@ THEIRS=$((echo "${MOD_FILES}"; echo "${NEW_FILES}") | sort | uniq)
 LS_FILES=(${ALL_FILES})
 if [ "${ADDED}" = true ]; then
     ADD_FILES=$( (echo "${ALL_FILES}"; echo "${OURS}") | sort | uniq -u)
+    # shellcheck disable=SC2206
+    # shellcheck disable=SC2206
     LS_FILES+=(${ADD_FILES})
 fi
 
 if [ "${DELETED}" = true ]; then
     DEL_FILES=$( (echo "${ALL_FILES}"; echo "${THEIRS}") | sort | uniq -u)
+    # shellcheck disable=SC2206
     LS_FILES+=(${DEL_FILES})
 fi
 

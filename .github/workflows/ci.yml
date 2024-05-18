@@ -157,7 +157,7 @@ jobs:
         with:
           pull_request: 5
           filter: '.*(\\.yml||\\.sh)$'
-          delimiter: ', '
+          delimiter: ','
 
       - name: Print Output
         id: output
@@ -168,7 +168,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo ".github/workflows/ci.yml, action.yml, run-on-actions.sh" | tee expected.txt
+          echo ".github/workflows/ci.yml,action.yml,run-on-actions.sh" | tee expected.txt
           echo "${{ steps.test-action.outputs.files }}" | tee output.txt
           diff expected.txt output.txt
           test ${{ steps.test-action.outputs.count }} -eq 3
