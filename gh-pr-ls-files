@@ -30,20 +30,17 @@ parse_params() {
     MODIFIED="${PR_LS_FILES_MODIFIED:-false}"
     PULL_REQUEST=
     REPOSITORY=
-    STATUS=("added" "removed" "modified")
+    STATUS=()
     while :; do
         case "${1-}" in
         -a | --added)
             ADDED=true
-            STATUS=()
             ;;
         -d | --deleted)
             DELETED=true
-            STATUS=()
             ;;
         -m | --modified)
             MODIFIED=true
-            STATUS=()
             ;;
         -R | --repo)
             REPOSITORY="${2-}"
@@ -75,16 +72,20 @@ parse_params() {
 parse_params "$@"
 
 if [ "${ADDED}" = true ]; then
-    STATUS+=("added")
+    STATUS+=('"added"')
 fi
 if [ "${DELETED}" = true ]; then
-    STATUS+=("removed")
+    STATUS+=('"removed"')
 fi
 if [ "${MODIFIED}" = true ]; then
-    STATUS+=("modified")
+    STATUS+=('"modified"')
 fi
 
-JQ_STATUS=$(IFS=,; echo "${STATUS[*]}" | sed 's/[^,]*/"&"/g')
+if [ "${#STATUS[@]}" -eq 0 ]; then
+    STATUS=('"added"' '"removed"' '"modified"')
+fi
+
+JQ_STATUS=$(IFS=,; echo "${STATUS[*]}")
 
 if [ -z "${REPOSITORY}" ]; then
     REPOSITORY=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
