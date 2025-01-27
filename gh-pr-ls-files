@@ -100,5 +100,4 @@ if [ -z "${REPOSITORY}" ]; then
 fi
 
 PULL_REQUEST_NUMBER=$(gh pr view -R "${REPOSITORY}" --json number --jq '.number' "${PULL_REQUEST}")
-gh api --paginate "/repos/${REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files"
-#  --jq '.[] | select(.status | IN('"${JQ_STATUS}"')) | .filename' 
+gh api --paginate "/repos/${REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files" --jq '.[] | select(.status | IN('"${JQ_STATUS}"')) | .filename' 

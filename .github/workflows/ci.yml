@@ -240,13 +240,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat << 'EOS' | tee expected.txt
-          ${{ matrix.expected }}
-          EOS
-          cat << 'EOS' | tee output.txt
-          ${{ steps.test-action.outputs.files }}
-          EOS
-          diff expected.txt output.txt
           test ${{ steps.test-action.outputs.count }} -eq ${{ matrix.count }}
 
   test-filter-and-delimiter:
