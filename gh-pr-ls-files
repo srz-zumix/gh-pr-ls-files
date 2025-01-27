@@ -20,6 +20,7 @@ list files in the pull request
     -a, --added           show added files in the output
     -d, --deleted         show deleted files in the output
     -m, --modified        show modified files in the output
+    -r, --renamed         show renamed files in the output
     -R, --repo            repository name
 " "$1"
 }
@@ -28,6 +29,7 @@ parse_params() {
     ADDED="${PR_LS_FILES_ADDED:-false}"
     DELETED="${PR_LS_FILES_DELETED:-false}"
     MODIFIED="${PR_LS_FILES_MODIFIED:-false}"
+    RENAMED="${PR_LS_FILES_RENAMED:-false}"
     PULL_REQUEST=
     REPOSITORY=
     STATUS=()
@@ -41,6 +43,9 @@ parse_params() {
             ;;
         -m | --modified)
             MODIFIED=true
+            ;;
+        -r | --renamed)
+            RENAMED=true
             ;;
         -R | --repo)
             REPOSITORY="${2-}"
@@ -80,9 +85,12 @@ fi
 if [ "${MODIFIED}" = true ]; then
     STATUS+=('"modified"')
 fi
+if [ "${RENAMED}" = true ]; then
+    STATUS+=('"renamed"')
+fi
 
 if [ "${#STATUS[@]}" -eq 0 ]; then
-    STATUS=('"added"' '"removed"' '"modified"')
+    STATUS=('"added"' '"removed"' '"modified"' '"renamed"')
 fi
 
 JQ_STATUS=$(IFS=,; echo "${STATUS[*]}")
@@ -92,4 +100,5 @@ if [ -z "${REPOSITORY}" ]; then
 fi
 
 PULL_REQUEST_NUMBER=$(gh pr view -R "${REPOSITORY}" --json number --jq '.number' "${PULL_REQUEST}")
-gh api --paginate "/repos/${REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files" --jq '.[] | select(.status | IN('"${JQ_STATUS}"')) | .filename' 
+gh api --paginate "/repos/${REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files"
+#  --jq '.[] | select(.status | IN('"${JQ_STATUS}"')) | .filename' 
