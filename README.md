@@ -52,6 +52,10 @@ show deleted files in the output. Default: `true`
 
 show modified files in the output. Default: `true`
 
+#### `renamed`
+
+show renamed files in the output. Default: `true`
+
 #### `filter`
 
 show files with the specified grep filter in the output.
