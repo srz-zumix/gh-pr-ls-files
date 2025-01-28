@@ -20,6 +20,7 @@ list files in the pull request
     -a, --added           show added files in the output
     -d, --deleted         show deleted files in the output
     -m, --modified        show modified files in the output
+    -R, --repo            repository name
 " "$1"
 }
 
@@ -28,6 +29,8 @@ parse_params() {
     DELETED="${PR_LS_FILES_DELETED:-false}"
     MODIFIED="${PR_LS_FILES_MODIFIED:-false}"
     PULL_REQUEST=
+    REPOSITORY=
+    STATUS=()
     while :; do
         case "${1-}" in
         -a | --added)
@@ -38,6 +41,10 @@ parse_params() {
             ;;
         -m | --modified)
             MODIFIED=true
+            ;;
+        -R | --repo)
+            REPOSITORY="${2-}"
+            shift
             ;;
         -h | --help)
             usage 0
@@ -64,50 +71,25 @@ parse_params() {
 
 parse_params "$@"
 
-ALL_FILES=$(gh pr diff "${PULL_REQUEST}" --name-only)
-if [ -z "${ALL_FILES}" ]; then
-    die "No diff found for the pull request ${PULL_REQUEST}" 0
-fi
-
-if [ "${ADDED}" = false ] && [ "${DELETED}" = false ] && [ "${MODIFIED}" = false ]; then
-    echo "${ALL_FILES}"
-    exit 0
-fi
-
-if [ "${ADDED}" = true ] && [ "${DELETED}" = true ] && [ "${MODIFIED}" = true ]; then
-    echo "${ALL_FILES}"
-    exit 0
-fi
-
-DIFF=$(gh pr diff "${PULL_REQUEST}")
-DIFF_LINES=$(echo "${DIFF}" | grep -E '^(---|\+\+\+) ' || [[ $? == 1 ]])
-OURS_CHANGED_FILES=$( (echo "${DIFF_LINES}" | grep -E '^---' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-DELETED_FILES=$( (echo "${DIFF}" | grep -B 1 -E 'deleted file' | grep -v 'deleted file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
-OURS=$( (echo "${OURS_CHANGED_FILES}"; echo "${DELETED_FILES}") | sort | uniq)
-
-MOD_FILES=$( (echo "${DIFF_LINES}" | grep -E '^\+\+\+' | grep -v '/dev/null' || [[ $? == 1 ]]) | cut -d ' ' -f 2- | cut -d '/' -f 2- | sort | uniq)
-NEW_FILES=$( (echo "${DIFF}" | grep -B 1 -E 'new file' | grep -v 'new file' || [[ $? == 1 ]]) | cut -d ' ' -f 4 | cut -d '/' -f 2- | sort | uniq)
-THEIRS=$((echo "${MOD_FILES}"; echo "${NEW_FILES}") | sort | uniq)
-
-# shellcheck disable=SC2206
-LS_FILES=(${ALL_FILES})
 if [ "${ADDED}" = true ]; then
-    ADD_FILES=$( (echo "${ALL_FILES}"; echo "${OURS}") | sort | uniq -u)
-    # shellcheck disable=SC2206
-    # shellcheck disable=SC2206
-    LS_FILES+=(${ADD_FILES})
+    STATUS+=('"added"')
 fi
-
 if [ "${DELETED}" = true ]; then
-    DEL_FILES=$( (echo "${ALL_FILES}"; echo "${THEIRS}") | sort | uniq -u)
-    # shellcheck disable=SC2206
-    LS_FILES+=(${DEL_FILES})
+    STATUS+=('"removed"')
 fi
-
 if [ "${MODIFIED}" = true ]; then
-    MOD_FILES=$( (echo "${OURS}"; echo "${THEIRS}") | sort | uniq -d)
-    LS_FILES+=(${MOD_FILES})
+    STATUS+=('"modified"')
 fi
 
-IFS=$'\n'
-echo "${LS_FILES[*]}" | awk 'NF' | sort | uniq -d
+if [ "${#STATUS[@]}" -eq 0 ]; then
+    STATUS=('"added"' '"removed"' '"modified"')
+fi
+
+JQ_STATUS=$(IFS=,; echo "${STATUS[*]}")
+
+if [ -z "${REPOSITORY}" ]; then
+    REPOSITORY=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+fi
+
+PULL_REQUEST_NUMBER=$(gh pr view -R "${REPOSITORY}" --json number --jq '.number' "${PULL_REQUEST}")
+gh api --paginate "/repos/${REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files" --jq '.[] | select(.status | IN('"${JQ_STATUS}"')) | .filename' 
