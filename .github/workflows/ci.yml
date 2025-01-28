@@ -93,6 +93,23 @@ jobs:
             renamed: true
             count: 0
             expected: ""
+          - name: Renamed Only (list renamed)
+            pr: 3
+            added: false
+            deleted: false
+            modified: false
+            renamed: true
+            count: 1
+            expected: |-
+              test2
+          - name: Renamed Only (list added/deleted/modified)
+            pr: 3
+            added: true
+            deleted: true
+            modified: true
+            renamed: false
+            count: 0
+            expected: ""
           - name: No Changes (list modified)
             pr: 4
             added: false
