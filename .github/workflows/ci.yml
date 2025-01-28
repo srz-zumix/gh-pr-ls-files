@@ -64,14 +64,16 @@ jobs:
             added: false
             deleted: true
             modified: false
+            renamed: false
             count: 1
             expected: |-
               .markdown-lint.yml
-          - name: Deleted Only (list added/modified)
+          - name: Deleted Only (list added/modified/renamed)
             pr: 2
             added: true
             deleted: false
             modified: true
+            renamed: true
             count: 0
             expected: ""
           - name: Added Only (list added)
@@ -79,14 +81,33 @@ jobs:
             added: true
             deleted: false
             modified: false
+            renamed: false
             count: 1
             expected: |-
               test
-          - name: Added Only (list deleted/modified)
+          - name: Added Only (list deleted/modified/renamed)
             pr: 3
             added: false
             deleted: true
             modified: true
+            renamed: true
+            count: 0
+            expected: ""
+          - name: Renamed Only (list renamed)
+            pr: 3
+            added: false
+            deleted: false
+            modified: false
+            renamed: true
+            count: 1
+            expected: |-
+              test2
+          - name: Renamed Only (list added/deleted/modified)
+            pr: 3
+            added: true
+            deleted: true
+            modified: true
+            renamed: false
             count: 0
             expected: ""
           - name: No Changes (list modified)
@@ -94,13 +115,15 @@ jobs:
             added: false
             deleted: false
             modified: true
+            renamed: false
             count: 0
             expected: ""
-          - name: No Changes (list added/deleted)
+          - name: No Changes (list added/deleted/renamed)
             pr: 4
             added: true
             deleted: true
             modified: false
+            renamed: true
             count: 0
             expected: ""
           - name: Empty File Deleted Only (list deleted)
@@ -108,6 +131,7 @@ jobs:
             added: false
             deleted: true
             modified: false
+            renamed: false
             count: 1
             expected: |-
               test
@@ -125,6 +149,7 @@ jobs:
           added: ${{ matrix.added }}
           deleted: ${{ matrix.deleted }}
           modified: ${{ matrix.modified }}
+          renamed: ${{ matrix.renamed }}
 
       - name: Print Output
         id: output
@@ -142,6 +167,96 @@ jobs:
           ${{ steps.test-action.outputs.files }}
           EOS
           diff expected.txt output.txt
+          test ${{ steps.test-action.outputs.count }} -eq ${{ matrix.count }}
+
+  test-paginate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Deleted Only (list deleted)
+            pr: 15
+            added: false
+            deleted: true
+            modified: false
+            renamed: false
+            count: 400
+          - name: Deleted Only (list added/modified/renamed)
+            pr: 15
+            added: true
+            deleted: false
+            modified: true
+            renamed: true
+            count: 0
+          - name: Added Only (list added)
+            pr: 11
+            added: true
+            deleted: false
+            modified: false
+            renamed: false
+            count: 400
+          - name: Added Only (list deleted/modified/renamed)
+            pr: 11
+            added: false
+            deleted: true
+            modified: true
+            renamed: true
+            count: 0
+          - name: Modified Only (list modified)
+            pr: 12
+            added: false
+            deleted: false
+            modified: false
+            renamed: false
+            count: 400
+          - name: Modified Only (list added/deleted/renamed)
+            pr: 12
+            added: false
+            deleted: true
+            modified: false
+            renamed: true
+            count: 0
+          - name: Rename Only (list renamed)
+            pr: 11
+            added: false
+            deleted: false
+            modified: false
+            renamed: true
+            count: 400
+          - name: Rename Only (list added/deleted/modified)
+            pr: 11
+            added: true
+            deleted: true
+            modified: true
+            renamed: false
+            count: 0
+
+    name: test-action - ${{ matrix.name }}
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          pull_request: ${{ matrix.pr }}
+          added: ${{ matrix.added }}
+          deleted: ${{ matrix.deleted }}
+          modified: ${{ matrix.modified }}
+          renamed: ${{ matrix.renamed }}
+
+      - name: Print Output
+        id: output
+        run: |
+          echo "${{ toJson(steps.test-action.outputs) }}"
+
+      - name: Test
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           test ${{ steps.test-action.outputs.count }} -eq ${{ matrix.count }}
 
   test-filter-and-delimiter:

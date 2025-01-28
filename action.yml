@@ -22,6 +22,11 @@ inputs:
     required: false
     default: true
     type: boolean
+  renamed:
+    description: 'show renamed files in the output'
+    required: false
+    default: true
+    type: boolean
   filter:
     description: 'show files with the specified grep filter in the output'
     required: false
@@ -56,6 +61,7 @@ runs:
       PR_LS_FILES_ADDED: ${{ inputs.added }}
       PR_LS_FILES_DELETED: ${{ inputs.deleted }}
       PR_LS_FILES_MODIFIED: ${{ inputs.modified }}
+      PR_LS_FILES_RENAMED: ${{ inputs.renamed }}
       INPUTS_GITHUB_TOKEN: ${{ inputs.github_token }}
       INPUTS_DELIMITER: ${{ inputs.delimiter }}
       INPUTS_FILTER: ${{ inputs.filter }}
