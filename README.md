@@ -22,6 +22,8 @@ list files in the pull request
     -a, --added           show added files in the output
     -d, --deleted         show deleted files in the output
     -m, --modified        show modified files in the output
+    -r, --renamed         show renamed files in the output
+    -R, --repo            repository name
 ```
 
 ## GitHub Actions Action
