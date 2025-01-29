@@ -9,24 +9,16 @@ inputs:
     type: string
   added:
     description: 'show added files in the output'
-    required: false
-    default: true
-    type: boolean
+    type: string
   deleted:
     description: 'show deleted files in the output'
-    required: false
-    default: true
-    type: boolean
+    type: string
   modified:
     description: 'show modified files in the output'
-    required: false
-    default: true
-    type: boolean
+    type: string
   renamed:
     description: 'show renamed files in the output'
-    required: false
-    default: true
-    type: boolean
+    type: string
   filter:
     description: 'show files with the specified grep filter in the output'
     required: false
@@ -54,14 +46,35 @@ outputs:
 runs:
   using: composite
   steps:
-  - name: ls-files
-    id: ls-files
+  - name: select other flags
     shell: bash
+    id: other
     env:
       PR_LS_FILES_ADDED: ${{ inputs.added }}
       PR_LS_FILES_DELETED: ${{ inputs.deleted }}
       PR_LS_FILES_MODIFIED: ${{ inputs.modified }}
       PR_LS_FILES_RENAMED: ${{ inputs.renamed }}
+    run: |
+      JOIN_FLAGS=$(
+      {
+        echo "${{ PR_LS_FILES_ADDED }}"
+        echo "${{ PR_LS_FILES_DELETED }}"
+        echo "${{ PR_LS_FILES_MODIFIED }}"
+        echo "${{ PR_LS_FILES_RENAMED }}"
+      } | sort | uniq | tr '\n' ',')
+      if [ "${JOIN_FLAGS}" = true ]; then
+        echo "flag=false"  >> "${GITHUB_OUTPUT}"
+      else
+        echo "flag=true" >> "${GITHUB_OUTPUT}"
+      fi
+  - name: ls-files
+    id: ls-files
+    shell: bash
+    env:
+      PR_LS_FILES_ADDED: ${{ inputs.added || steps.other.outputs.flag }}
+      PR_LS_FILES_DELETED: ${{ inputs.deleted || steps.other.outputs.flag  }}
+      PR_LS_FILES_MODIFIED: ${{ inputs.modified || steps.other.outputs.flag  }}
+      PR_LS_FILES_RENAMED: ${{ inputs.renamed || steps.other.outputs.flag  }}
       INPUTS_GITHUB_TOKEN: ${{ inputs.github_token }}
       INPUTS_DELIMITER: ${{ inputs.delimiter }}
       INPUTS_FILTER: ${{ inputs.filter }}
