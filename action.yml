@@ -57,10 +57,10 @@ runs:
     run: |
       JOIN_FLAGS=$(
       {
-        echo "${{ PR_LS_FILES_ADDED }}"
-        echo "${{ PR_LS_FILES_DELETED }}"
-        echo "${{ PR_LS_FILES_MODIFIED }}"
-        echo "${{ PR_LS_FILES_RENAMED }}"
+        echo "${PR_LS_FILES_ADDED}"
+        echo "${PR_LS_FILES_DELETED}"
+        echo "${PR_LS_FILES_MODIFIED}"
+        echo "${PR_LS_FILES_RENAMED}"
       } | sort | uniq | tr '\n' ',')
       if [ "${JOIN_FLAGS}" = true ]; then
         echo "flag=false"  >> "${GITHUB_OUTPUT}"
