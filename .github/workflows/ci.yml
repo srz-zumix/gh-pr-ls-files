@@ -82,6 +82,32 @@ jobs:
             added: false
             count: 0
             expected: ""
+          - name: Added and Deleted (list added)
+            pr: 22
+            added: true
+            count: 1
+            expected: |-
+              test2
+          - name: Added and Deleted (list deleted)
+            pr: 22
+            deleted: true
+            count: 1
+            expected: |-
+              test
+          - name: Added and Deleted (list added/deleted)
+            pr: 22
+            added: true
+            deleted: true
+            count: 2
+            expected: |-
+              test
+              test2
+          - name: Added and Deleted (list modified/renamed)
+            pr: 22
+            added: false
+            deleted: false
+            count: 0
+            expected: ""
           - name: Renamed Only (list renamed)
             pr: 18
             renamed: true
