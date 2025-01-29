@@ -177,15 +177,15 @@ jobs:
             modified: false
             count: 0
           - name: Rename Only (list renamed)
-            pr: 11
+            pr: 13
             renamed: true
             count: 400
           - name: Rename Only (list added/deleted/modified)
-            pr: 11
+            pr: 13
             renamed: false
             count: 0
 
-    name: test-action - ${{ matrix.name }}
+    name: test-paginate - ${{ matrix.name }}
     steps:
       - name: Checkout
         id: checkout

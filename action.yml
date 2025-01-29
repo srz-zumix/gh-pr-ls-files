@@ -55,17 +55,18 @@ runs:
       PR_LS_FILES_MODIFIED: ${{ inputs.modified }}
       PR_LS_FILES_RENAMED: ${{ inputs.renamed }}
     run: |
+      set -x
       JOIN_FLAGS=$(
       {
         echo "${PR_LS_FILES_ADDED}"
         echo "${PR_LS_FILES_DELETED}"
         echo "${PR_LS_FILES_MODIFIED}"
         echo "${PR_LS_FILES_RENAMED}"
-      } | sort | uniq | tr '\n' ',')
+      } | sort | uniq | tr '\n' '')
       if [ "${JOIN_FLAGS}" = true ]; then
-        echo "flag=false"  >> "${GITHUB_OUTPUT}"
+        echo "flag=false" >> "${GITHUB_OUTPUT}"
       else
-        echo "flag=true" >> "${GITHUB_OUTPUT}"
+        echo "flag=true"  >> "${GITHUB_OUTPUT}"
       fi
   - name: ls-files
     id: ls-files
