@@ -22,24 +22,24 @@ jobs:
         uses: ./
         with:
           added: true
-          deleted: false
-          modified: false
 
       - name: Test Local Action (D)
         id: deleted
         uses: ./
         with:
-          added: false
           deleted: true
-          modified: false
 
       - name: Test Local Action (M)
         id: modified
         uses: ./
         with:
-          added: false
-          deleted: false
           modified: true
+
+      - name: Test Local Action (R)
+        id: renamed
+        uses: ./
+        with:
+          renamed: true
 
       - name: Test
         env:
@@ -50,6 +50,7 @@ jobs:
           ${{ steps.added.outputs.files }}
           ${{ steps.deleted.outputs.files }}
           ${{ steps.modified.outputs.files }}
+          ${{ steps.renamed.outputs.files }}
           EOS
           diff expected.txt output.txt
 
@@ -61,69 +62,71 @@ jobs:
         include:
           - name: Deleted Only (list deleted)
             pr: 2
-            added: false
             deleted: true
-            modified: false
-            renamed: false
             count: 1
             expected: |-
               .markdown-lint.yml
           - name: Deleted Only (list added/modified/renamed)
             pr: 2
-            added: true
             deleted: false
-            modified: true
-            renamed: true
             count: 0
             expected: ""
           - name: Added Only (list added)
             pr: 3
             added: true
-            deleted: false
-            modified: false
-            renamed: false
             count: 1
             expected: |-
               test
           - name: Added Only (list deleted/modified/renamed)
             pr: 3
             added: false
+            count: 0
+            expected: ""
+          - name: Added and Deleted (list added)
+            pr: 22
+            added: true
+            count: 1
+            expected: |-
+              test2
+          - name: Added and Deleted (list deleted)
+            pr: 22
             deleted: true
-            modified: true
-            renamed: true
+            count: 1
+            expected: |-
+              test
+          - name: Added and Deleted (list added/deleted)
+            pr: 22
+            added: true
+            deleted: true
+            count: 2
+            expected: |-
+              test
+              test2
+          - name: Added and Deleted (list modified/renamed)
+            pr: 22
+            added: false
+            deleted: false
             count: 0
             expected: ""
           - name: Renamed Only (list renamed)
-            pr: 3
-            added: false
-            deleted: false
-            modified: false
+            pr: 18
             renamed: true
             count: 1
             expected: |-
               test2
           - name: Renamed Only (list added/deleted/modified)
-            pr: 3
-            added: true
-            deleted: true
-            modified: true
+            pr: 18
             renamed: false
             count: 0
             expected: ""
           - name: No Changes (list modified)
             pr: 4
-            added: false
-            deleted: false
             modified: true
-            renamed: false
             count: 0
             expected: ""
           - name: No Changes (list added/deleted/renamed)
             pr: 4
-            added: true
-            deleted: true
             modified: false
-            renamed: true
             count: 0
             expected: ""
           - name: Empty File Deleted Only (list deleted)
@@ -177,62 +180,38 @@ jobs:
         include:
           - name: Deleted Only (list deleted)
             pr: 15
-            added: false
             deleted: true
-            modified: false
-            renamed: false
             count: 400
           - name: Deleted Only (list added/modified/renamed)
             pr: 15
-            added: true
             deleted: false
-            modified: true
-            renamed: true
             count: 0
           - name: Added Only (list added)
             pr: 11
             added: true
-            deleted: false
-            modified: false
-            renamed: false
             count: 400
           - name: Added Only (list deleted/modified/renamed)
             pr: 11
             added: false
-            deleted: true
-            modified: true
-            renamed: true
             count: 0
           - name: Modified Only (list modified)
             pr: 12
-            added: false
-            deleted: false
-            modified: false
-            renamed: false
+            modified: true
             count: 400
           - name: Modified Only (list added/deleted/renamed)
             pr: 12
-            added: false
-            deleted: true
             modified: false
-            renamed: true
             count: 0
           - name: Rename Only (list renamed)
-            pr: 11
-            added: false
-            deleted: false
-            modified: false
+            pr: 13
             renamed: true
             count: 400
           - name: Rename Only (list added/deleted/modified)
-            pr: 11
-            added: true
-            deleted: true
-            modified: true
+            pr: 13
             renamed: false
             count: 0
 
-    name: test-action - ${{ matrix.name }}
+    name: test-paginate - ${{ matrix.name }}
     steps:
       - name: Checkout
         id: checkout

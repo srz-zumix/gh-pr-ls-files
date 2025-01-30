@@ -30,8 +30,24 @@ list files in the pull request
 
 ### Usage
 
+#### List all files
+
 ```yaml
-- uses: srz-zumix/gh-pr-ls-files@v0
+- uses: srz-zumix/gh-pr-ls-files@v1
+```
+
+#### List deleted files
+
+```yaml
+- uses: srz-zumix/gh-pr-ls-files@v1
+  with:
+    deleted: true
+```
+
+#### List non-deleted (added/modified/renamed) files
+
+```yaml
+- uses: srz-zumix/gh-pr-ls-files@v1
   with:
     deleted: false
 ```
@@ -44,19 +60,19 @@ pull request number|url|branch. Default: `github.event.pull_request.html_url`
 
 #### `added`
 
-show added files in the output. Default: `true`
+show added files in the output.
 
 #### `deleted`
 
-show deleted files in the output. Default: `true`
+show deleted files in the output.
 
 #### `modified`
 
-show modified files in the output. Default: `true`
+show modified files in the output.
 
 #### `renamed`
 
-show renamed files in the output. Default: `true`
+show renamed files in the output.
 
 #### `filter`
 
