@@ -55,6 +55,7 @@ runs:
       PR_LS_FILES_MODIFIED: ${{ inputs.modified }}
       PR_LS_FILES_RENAMED: ${{ inputs.renamed }}
     run: |
+      # select other flags
       JOIN_FLAGS=$(
       {
         echo "${PR_LS_FILES_ADDED}"
