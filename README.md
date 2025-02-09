@@ -56,7 +56,11 @@ list files in the pull request
 
 #### `pull_request`
 
-pull request number|url|branch. Default: `github.event.pull_request.html_url`
+pull request number|url|branch. Default: `${{ github.event.pull_request.html_url }}`
+
+#### `repository`
+
+Repository name with owner. For example, srz-zumix/gh-pr-ls-files. Default: `${{ github.repository }}`
 
 #### `added`
 
