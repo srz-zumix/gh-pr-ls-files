@@ -7,6 +7,10 @@ inputs:
     description: 'pull request number|url|branch'
     default: ${{ github.event.pull_request.html_url }}
     type: string
+  repository:
+    description: 'repository'
+    default: ${{ github.repository }}
+    type: string
   added:
     description: 'show added files in the output'
     type: string
@@ -79,12 +83,13 @@ runs:
       INPUTS_GITHUB_TOKEN: ${{ inputs.github_token }}
       INPUTS_DELIMITER: ${{ inputs.delimiter }}
       INPUTS_FILTER: ${{ inputs.filter }}
+      INPUTS_REPOSITORY: ${{ inputs.repository || github.repository }}
     run: |
       # ls-files
       # shellcheck disable=SC2046
       export GH_ENTERPRISE_TOKEN="${INPUTS_GITHUB_TOKEN:-${GH_ENTERPRISE_TOKEN:-${{ github.token }}}}"
       export GH_TOKEN="${GH_ENTERPRISE_TOKEN}"
-      ${{ github.action_path }}/run-on-actions.sh ${{ inputs.pull_request }}
+      ${{ github.action_path }}/run-on-actions.sh -R "${INPUTS_REPOSITORY}" ${{ inputs.pull_request }}
 
 branding:
   icon: 'file'

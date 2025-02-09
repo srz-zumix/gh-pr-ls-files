@@ -16,28 +16,30 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
+        with:
+          path: test-action
 
       - name: Test Local Action (A)
         id: added
-        uses: ./
+        uses: ./test-action
         with:
           added: true
 
       - name: Test Local Action (D)
         id: deleted
-        uses: ./
+        uses: ./test-action
         with:
           deleted: true
 
       - name: Test Local Action (M)
         id: modified
-        uses: ./
+        uses: ./test-action
         with:
           modified: true
 
       - name: Test Local Action (R)
         id: renamed
-        uses: ./
+        uses: ./test-action
         with:
           renamed: true
 
