@@ -243,9 +243,7 @@ jobs:
   test-filter-and-delimiter:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Test Local Action
         id: test-action
@@ -268,3 +266,29 @@ jobs:
           echo "${{ steps.test-action.outputs.files }}" | tee output.txt
           diff expected.txt output.txt
           test ${{ steps.test-action.outputs.count }} -eq 3
+
+  test-exclude:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          pull_request: 5
+          exclude: '.*(\.yml|\.sh)$'
+
+      - name: Print Output
+        id: output
+        run: |
+          echo "${{ toJson(steps.test-action.outputs) }}"
+
+      - name: Test
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "gh-pr-ls-files" | tee expected.txt
+          echo "${{ steps.test-action.outputs.files }}" | tee output.txt
+          diff expected.txt output.txt
+          test ${{ steps.test-action.outputs.count }} -eq 1

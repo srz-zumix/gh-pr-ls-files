@@ -84,6 +84,10 @@ show files with the specified grep filter in the output.
 
 e.g. `".*(\.ino|\.cpp|\.c|\.h|\.hpp|\.hh)$"`
 
+#### `exclude`
+
+exclude files with the specified grep filter in the output.
+
 #### `delimiter`
 
 delimiter for the output.
