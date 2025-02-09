@@ -28,6 +28,11 @@ inputs:
     required: false
     default: ''
     type: string
+  exclude:
+    description: 'exclude files with the specified grep filter in the output'
+    required: false
+    default: ''
+    type: string
   delimiter:
     description: 'delimiter for the output'
     required: false
@@ -83,6 +88,7 @@ runs:
       INPUTS_GITHUB_TOKEN: ${{ inputs.github_token }}
       INPUTS_DELIMITER: ${{ inputs.delimiter }}
       INPUTS_FILTER: ${{ inputs.filter }}
+      INPUTS_EXCLUDE: ${{ inputs.exclude }}
       INPUTS_REPOSITORY: ${{ inputs.repository || github.repository }}
     run: |
       # ls-files
