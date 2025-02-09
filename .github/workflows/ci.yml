@@ -47,7 +47,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr diff --name-only ${{ github.event.number }} | sort | tee expected.txt
+          gh pr diff -R ${{ github.repository }} --name-only ${{ github.event.number }} | sort | tee expected.txt
           cat << 'EOS' | awk 'NF' | sort | tee output.txt
           ${{ steps.added.outputs.files }}
           ${{ steps.deleted.outputs.files }}
