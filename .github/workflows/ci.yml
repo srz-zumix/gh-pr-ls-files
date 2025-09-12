@@ -54,10 +54,10 @@ jobs:
         run: |
           gh pr diff -R ${{ github.repository }} --name-only ${{ github.event.number }} | sort | tee expected.txt
           cat << 'EOS' | awk 'NF' | sort | tee output.txt
-          ${ADDED_FILES}
-          ${DELETED_FILES}
-          ${MODIFIED_FILES}
-          ${RENAMED_FILES}
+          ${{ env.ADDED_FILES }}
+          ${{ env.DELETED_FILES }}
+          ${{ env.MODIFIED_FILES }}
+          ${{ env.RENAMED_FILES }}
           EOS
           diff expected.txt output.txt
 
@@ -180,7 +180,7 @@ jobs:
           ${{ matrix.expected }}
           EOS
           cat << 'EOS' | tee output.txt
-          ${TEST_ACTION_FILES}
+          ${{ env.TEST_ACTION_FILES }}
           EOS
           diff expected.txt output.txt
           test "${TEST_ACTION_COUNT}" -eq ${{ matrix.count }}
