@@ -90,12 +90,13 @@ runs:
       INPUTS_FILTER: ${{ inputs.filter }}
       INPUTS_EXCLUDE: ${{ inputs.exclude }}
       INPUTS_REPOSITORY: ${{ inputs.repository || github.repository }}
+      INPUTS_PULL_REQUEST: ${{ inputs.pull_request }}
     run: |
       # ls-files
       # shellcheck disable=SC2046
       export GH_ENTERPRISE_TOKEN="${INPUTS_GITHUB_TOKEN:-${GH_ENTERPRISE_TOKEN:-${{ github.token }}}}"
       export GH_TOKEN="${GH_ENTERPRISE_TOKEN}"
-      ${{ github.action_path }}/run-on-actions.sh -R "${INPUTS_REPOSITORY}" ${{ inputs.pull_request }}
+      ${{ github.action_path }}/run-on-actions.sh -R "${INPUTS_REPOSITORY}" "${INPUTS_PULL_REQUEST}"
 
 branding:
   icon: 'file'

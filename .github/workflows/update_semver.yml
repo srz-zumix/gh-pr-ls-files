@@ -14,15 +14,18 @@ on:
         type: string
         required: true
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
   update-semver:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
-      - uses: haya14busa/action-update-semver@v1
+        with:
+          persist-credentials: false
+      - uses: haya14busa/action-update-semver@3f49a54b677d969c819c1c6ebea626a54dafe032 # v1.5.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ inputs.tag || '' }}
