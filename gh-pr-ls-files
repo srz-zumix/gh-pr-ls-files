@@ -99,6 +99,5 @@ if [ -z "${REPOSITORY}" ]; then
     REPOSITORY=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
 fi
 
-export GH_REQUEST_TIMEOUT=30
 PULL_REQUEST_NUMBER=$(gh pr view -R "${REPOSITORY}" --json number --jq '.number' "${PULL_REQUEST}")
 gh api --paginate "/repos/${REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files" --jq '.[] | select(.status | IN('"${JQ_STATUS}"')) | .filename'
