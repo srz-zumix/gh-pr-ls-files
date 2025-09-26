@@ -3,8 +3,16 @@ set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" &>/dev/null && pwd -P)
 
-LS_FILES=$("${SCRIPT_DIR}/gh-pr-ls-files" "$@" | grep -E "${INPUTS_FILTER:-.*}" || [[ $? == 1 ]])
+# Step 1: Get the list of files.
+# If gh-pr-ls-files fails (e.g., from a timeout), `set -e` will cause the script to exit here.
+LS_FILES=$("${SCRIPT_DIR}/gh-pr-ls-files" "$@")
 
+# Step 2: Apply include filter.
+# The `|| [[ $? == 1 ]]` construct ensures that the script doesn't fail if grep finds no matches (exit code 1),
+# but it will fail on other grep errors (exit code > 1).
+LS_FILES=$(echo "${LS_FILES}" | grep -E "${INPUTS_FILTER:-.*}" || [[ $? == 1 ]])
+
+# Step 3: Apply exclude filter.
 if [ -n "${INPUTS_EXCLUDE:-}" ]; then
     LS_FILES=$(echo "${LS_FILES}" | grep -vE "${INPUTS_EXCLUDE:-><}" || [[ $? == 1 ]])
 fi
