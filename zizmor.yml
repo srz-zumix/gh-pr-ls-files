@@ -1,8 +1,12 @@
 rules:
+  unpinned-uses:
+    config:
+      policies:
+        actions/*: any
   template-injection:
     ignore:
       - ci.yml:57
       - ci.yml:58
       - ci.yml:59
       - ci.yml:60
-      - ci.yml:183
+      - ci.yml:176
