@@ -9,4 +9,4 @@ rules:
       - ci.yml:58
       - ci.yml:59
       - ci.yml:60
-      - ci.yml:183
+      - ci.yml:176
