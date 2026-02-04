@@ -163,16 +163,9 @@ jobs:
           modified: ${{ matrix.modified }}
           renamed: ${{ matrix.renamed }}
 
-      - &print-output
-        name: Print Output
-        id: output
-        env:
-          TEST_ACTION_OUTPUTS: ${{ toJson(steps.test-action.outputs) }}
-        run: |
-          echo "${TEST_ACTION_OUTPUTS}"
-
       - name: Test
         env:
+          TEST_ACTION_OUTPUTS: ${{ toJson(steps.test-action.outputs) }}
           TEST_ACTION_FILES: ${{ steps.test-action.outputs.files }}
           TEST_ACTION_COUNT: ${{ steps.test-action.outputs.count }}
         run: |
@@ -242,10 +235,9 @@ jobs:
           modified: ${{ matrix.modified }}
           renamed: ${{ matrix.renamed }}
 
-      - *print-output
-
       - name: Test
         env:
+          TEST_ACTION_OUTPUTS: ${{ toJson(steps.test-action.outputs) }}
           TEST_ACTION_FILES: ${{ steps.test-action.outputs.files }}
           TEST_ACTION_COUNT: ${{ steps.test-action.outputs.count }}
         run: |
@@ -266,10 +258,9 @@ jobs:
           filter: '.*(\.yml|\.sh)$'
           delimiter: ','
 
-      - *print-output
-
       - name: Test
         env:
+          TEST_ACTION_OUTPUTS: ${{ toJson(steps.test-action.outputs) }}
           TEST_ACTION_FILES: ${{ steps.test-action.outputs.files }}
           TEST_ACTION_COUNT: ${{ steps.test-action.outputs.count }}
         run: |
@@ -292,10 +283,9 @@ jobs:
           pull_request: 5
           exclude: '.*(\.yml|\.sh)$'
 
-      - *print-output
-
       - name: Test
         env:
+          TEST_ACTION_OUTPUTS: ${{ toJson(steps.test-action.outputs) }}
           TEST_ACTION_FILES: ${{ steps.test-action.outputs.files }}
           TEST_ACTION_COUNT: ${{ steps.test-action.outputs.count }}
         run: |
