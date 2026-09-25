@@ -64,7 +64,8 @@ jobs:
         uses: $/
         continue-on-error: true
         with:
-          pull_request: ${{ github.event.number }}
+          repository: srz-zumix/cppbook-test2 
+          pull_request: 1
       - name: Test inaccessible pull request
         run: |
           test "${{ steps.test-action.outcome }}" == "failure"
