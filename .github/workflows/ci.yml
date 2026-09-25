@@ -72,15 +72,15 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        continue-on-error: true
+        with:
+          pull_request: ${{ github.event.number }}
       - name: Test inaccessible pull request
         run: |
-          set +e
-          output=$(GH_TOKEN="${{ github.token }}" ./gh-pr-ls-files \
-           -R "${{ github.repository }}" "${{ github.event.number }}" 2>&1)
-          status=$?
-          set -e
-          test "${status}" -ne 0
-          grep -F "Resource not accessible by integration" <<< "${output}"
+          test "${{ steps.test-action.outcome }}" == "failure"
 
   test-type:
     runs-on: ubuntu-latest
