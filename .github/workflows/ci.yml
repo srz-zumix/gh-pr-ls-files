@@ -64,7 +64,7 @@ jobs:
         uses: $/
         continue-on-error: true
         with:
-          repository: srz-zumix/cppbook-test2 
+          repository: srz-zumix/cppbook-test2
           pull_request: 1
       - name: Test inaccessible pull request
         run: |
