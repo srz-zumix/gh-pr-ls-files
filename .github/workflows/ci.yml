@@ -61,6 +61,32 @@ jobs:
           EOS
           diff expected.txt output.txt
 
+  test-permission-error:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Test inaccessible pull request
+        run: |
+          mkdir -p mock-bin
+          cat > mock-bin/gh <<'EOF'
+          #!/usr/bin/env bash
+          if [ "$1" = pr ] && [ "$2" = view ]; then
+           exit 0
+          fi
+          exit 1
+          EOF
+          chmod +x mock-bin/gh
+          set +e
+          output=$(PATH="${PWD}/mock-bin:${PATH}" ./gh-pr-ls-files -R owner/repo 123 2>&1)
+          status=$?
+          set -e
+          test "${status}" -ne 0
+          grep -F "pull-requests: read permission" <<< "${output}"
+
   test-type:
     runs-on: ubuntu-latest
     strategy:
