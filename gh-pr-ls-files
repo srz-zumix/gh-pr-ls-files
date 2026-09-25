@@ -100,4 +100,7 @@ if [ -z "${REPOSITORY}" ]; then
 fi
 
 PULL_REQUEST_NUMBER=$(gh pr view -R "${REPOSITORY}" --json number --jq '.number' "${PULL_REQUEST}")
+if [ -z "${PULL_REQUEST_NUMBER}" ]; then
+    die "Unable to access pull request ${PULL_REQUEST}. Check that the token has pull-requests: read permission."
+fi
 gh api --paginate "/repos/${REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files" --jq '.[] | select(.status | IN('"${JQ_STATUS}"')) | .filename' 
