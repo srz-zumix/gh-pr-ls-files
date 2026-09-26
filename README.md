@@ -94,7 +94,13 @@ delimiter for the output.
 
 #### `github_token`
 
-GitHub TOKEN. Default: `github.token`
+GitHub TOKEN. Default: empty.
+
+Token priority:
+
+1. `github_token` input
+2. `GH_TOKEN` / `GH_ENTERPRISE_TOKEN` environment variables
+3. `github.token`
 
 ### Outputs
 

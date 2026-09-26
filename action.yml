@@ -40,7 +40,7 @@ inputs:
     type: string
   github_token:
     description: 'GitHub TOKEN'
-    default: ${{ github.token }}
+    default: ''
     required: false
     type: string
 
@@ -94,8 +94,16 @@ runs:
     run: |
       # ls-files
       # shellcheck disable=SC2046
-      export GH_ENTERPRISE_TOKEN="${INPUTS_GITHUB_TOKEN:-${GH_ENTERPRISE_TOKEN:-${{ github.token }}}}"
-      export GH_TOKEN="${GH_TOKEN:-${GH_ENTERPRISE_TOKEN}}"
+      if [ -n "${INPUTS_GITHUB_TOKEN:-}" ]; then
+        export GH_TOKEN="${INPUTS_GITHUB_TOKEN}"
+        export GH_ENTERPRISE_TOKEN="${INPUTS_GITHUB_TOKEN}"
+      elif [ -n "${GH_TOKEN:-}" ] || [ -n "${GH_ENTERPRISE_TOKEN:-}" ]; then
+        export GH_TOKEN="${GH_TOKEN:-${GH_ENTERPRISE_TOKEN}}"
+        export GH_ENTERPRISE_TOKEN="${GH_ENTERPRISE_TOKEN:-${GH_TOKEN}}"
+      else
+        export GH_TOKEN="${{ github.token }}"
+        export GH_ENTERPRISE_TOKEN="${{ github.token }}"
+      fi
       ${{ github.action_path }}/run-on-actions.sh -R "${INPUTS_REPOSITORY}" "${INPUTS_PULL_REQUEST}"
 
 branding:
