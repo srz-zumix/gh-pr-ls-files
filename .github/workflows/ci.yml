@@ -5,42 +5,35 @@ on:
     branches:
       - main
 
-permissions:
-  contents: read
-  pull-requests: read
+permissions: {}
 
 jobs:
   test-action:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v7
-        with:
-          path: test-action
-          persist-credentials: false
-
       - name: Test Local Action (A)
         id: added
-        uses: ./test-action
+        uses: $/
         with:
           added: true
 
       - name: Test Local Action (D)
         id: deleted
-        uses: ./test-action
+        uses: $/
         with:
           deleted: true
 
       - name: Test Local Action (M)
         id: modified
-        uses: ./test-action
+        uses: $/
         with:
           modified: true
 
       - name: Test Local Action (R)
         id: renamed
-        uses: ./test-action
+        uses: $/
         with:
           renamed: true
 
@@ -61,8 +54,26 @@ jobs:
           EOS
           diff expected.txt output.txt
 
+  test-permission-error:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: none
+    steps:
+      - name: Test Local Action
+        id: test-action
+        uses: $/
+        continue-on-error: true
+        with:
+          repository: srz-zumix/cppbook-test2
+          pull_request: 1
+      - name: Test inaccessible pull request
+        run: |
+          test "${{ steps.test-action.outcome }}" == "failure"
+
   test-type:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     strategy:
       fail-fast: false
       matrix:
@@ -147,15 +158,9 @@ jobs:
               test
     name: test-action - ${{ matrix.name }}
     steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
       - name: Test Local Action
         id: test-action
-        uses: ./
+        uses: $/
         with:
           pull_request: ${{ matrix.pr }}
           added: ${{ matrix.added }}
@@ -180,6 +185,8 @@ jobs:
 
   test-paginate:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     strategy:
       fail-fast: false
       matrix:
@@ -219,15 +226,9 @@ jobs:
 
     name: test-paginate - ${{ matrix.name }}
     steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
       - name: Test Local Action
         id: test-action
-        uses: ./
+        uses: $/
         with:
           pull_request: ${{ matrix.pr }}
           added: ${{ matrix.added }}
@@ -245,14 +246,12 @@ jobs:
 
   test-filter-and-delimiter:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
       - name: Test Local Action
         id: test-action
-        uses: ./
+        uses: $/
         with:
           pull_request: 5
           filter: '.*(\.yml|\.sh)$'
@@ -271,14 +270,12 @@ jobs:
 
   test-exclude:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
       - name: Test Local Action
         id: test-action
-        uses: ./
+        uses: $/
         with:
           pull_request: 5
           exclude: '.*(\.yml|\.sh)$'
